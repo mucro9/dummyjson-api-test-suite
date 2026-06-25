@@ -1,0 +1,778 @@
+{
+  "info": {
+    "name": "DummyJSON API Test Suite",
+    "description": "Professional API test suite for the DummyJSON API.\n\nFolders:\n1. Authentication — JWT issuance, authenticated access, refresh, and failure modes.\n2. Products — CRUD — create/read/update/delete (writes are simulated by DummyJSON).\n3. Search, Filter & Pagination — keyword search, category filter, pagination, sorting.\n4. Error Handling — invalid IDs, missing fields, bad credentials, malformed tokens.\n\nNotes on the system under test:\n- DummyJSON is a mock API: create/update/delete return a realistic response shape but are NOT persisted. Tests assert on the documented simulated response, not on re-fetching mutated data.\n- A malformed bearer token returns HTTP 500 (not 401). This is asserted and flagged as a defect in the README.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://dummyjson.com" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Runs before every request. Ensures baseUrl is always set even if the",
+          "// environment file is not supplied (keeps the collection self-contained).",
+          "if (!pm.environment.get('baseUrl') && !pm.collectionVariables.get('baseUrl')) {",
+          "  pm.collectionVariables.set('baseUrl', 'https://dummyjson.com');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global assertion applied to every response: a sane response time.",
+          "// Kept generous to avoid flakiness against a public demo API.",
+          "pm.test('Response time is under 5000ms', function () {",
+          "  pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "description": "Validates JWT issuance and the full auth lifecycle, including negative cases — 'beyond just logging in successfully'.",
+      "item": [
+        {
+          "name": "Login — success (issues JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test('Returns an accessToken (JWT)', function () {",
+                  "  pm.expect(body).to.have.property('accessToken').that.is.a('string').and.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Returns a refreshToken', function () {",
+                  "  pm.expect(body).to.have.property('refreshToken').that.is.a('string').and.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('accessToken is a well-formed JWT (three dot-separated parts)', function () {",
+                  "  pm.expect(body.accessToken.split('.')).to.have.lengthOf(3);",
+                  "});",
+                  "",
+                  "pm.test('Returns the authenticated user identity', function () {",
+                  "  pm.expect(body).to.have.property('id');",
+                  "  pm.expect(body.username).to.eql(pm.environment.get('username') || 'emilys');",
+                  "  pm.expect(body).to.have.property('email').that.includes('@');",
+                  "});",
+                  "",
+                  "// Persist tokens for downstream authenticated requests.",
+                  "pm.environment.set('accessToken', body.accessToken);",
+                  "pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"expiresInMins\": 30\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get current user — authenticated (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns the profile of the token owner', function () {",
+                  "  pm.expect(body.username).to.eql(pm.environment.get('username') || 'emilys');",
+                  "  pm.expect(body).to.have.property('email');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        },
+        {
+          "name": "Refresh token (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns a new accessToken', function () {",
+                  "  pm.expect(body).to.have.property('accessToken').that.is.a('string').and.is.not.empty;",
+                  "});",
+                  "pm.test('Returns a new refreshToken', function () {",
+                  "  pm.expect(body).to.have.property('refreshToken').that.is.a('string').and.is.not.empty;",
+                  "});",
+                  "",
+                  "// Rotate stored tokens.",
+                  "pm.environment.set('accessToken', body.accessToken);",
+                  "pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"expiresInMins\": 30\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Login — invalid credentials (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Returns an Invalid credentials message', function () {",
+                  "  pm.expect(pm.response.json().message).to.match(/invalid credentials/i);",
+                  "});",
+                  "pm.test('Does not leak a token', function () {",
+                  "  pm.expect(pm.response.json()).to.not.have.property('accessToken');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"definitely-wrong-password\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login — missing password (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Returns a validation message', function () {",
+                  "  pm.expect(pm.response.json().message).to.match(/required/i);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get current user — no token (401)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// IMPORTANT: DummyJSON sets the JWT as an HttpOnly cookie on login, and",
+                  "// Newman's cookie jar replays it automatically. We clear the jar here so",
+                  "// this test validates the Authorization-header contract in isolation,",
+                  "// rather than being silently authenticated by a leftover cookie.",
+                  "const jar = pm.cookies.jar();",
+                  "jar.clear(pm.environment.get('baseUrl') || 'https://dummyjson.com', function () {});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Explains that a token is required', function () {",
+                  "  pm.expect(pm.response.json().message).to.match(/token is required/i);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        },
+        {
+          "name": "Get current user — malformed token (documents 500 defect)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Clear the cookie jar so only the malformed Authorization header is evaluated.",
+                  "const jar = pm.cookies.jar();",
+                  "jar.clear(pm.environment.get('baseUrl') || 'https://dummyjson.com', function () {});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// OBSERVED BEHAVIOR: DummyJSON returns 500 for a malformed bearer token.",
+                  "// A correct API should return 401. We assert the actual behavior so the suite",
+                  "// is green and stable, and document the expectation gap as a defect in the README.",
+                  "pm.test('Rejects a malformed token (does not return 200)', function () {",
+                  "  pm.expect(pm.response.code).to.not.eql(200);",
+                  "});",
+                  "pm.test('[KNOWN DEFECT] Returns 500 instead of the expected 401', function () {",
+                  "  pm.expect(pm.response.code).to.eql(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer this.is.not-a-valid-jwt" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Products — CRUD",
+      "description": "Full create/read/update/delete on /products. DummyJSON simulates writes (no persistence), so tests assert on the returned response shape and echoed values, not on re-fetching mutated records.",
+      "item": [
+        {
+          "name": "Create product (simulated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns a generated id', function () {",
+                  "  pm.expect(body).to.have.property('id').that.is.a('number');",
+                  "});",
+                  "pm.test('Echoes the submitted fields', function () {",
+                  "  pm.expect(body.title).to.eql('QA Test Widget');",
+                  "  pm.expect(body.price).to.eql(42);",
+                  "  pm.expect(body.category).to.eql('gadgets');",
+                  "});",
+                  "",
+                  "pm.environment.set('createdProductId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"QA Test Widget\",\n  \"price\": 42,\n  \"category\": \"gadgets\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/products/add", "host": ["{{baseUrl}}"], "path": ["products", "add"] }
+          }
+        },
+        {
+          "name": "Read single product (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns the requested product', function () {",
+                  "  pm.expect(body.id).to.eql(1);",
+                  "});",
+                  "pm.test('Has the expected core schema', function () {",
+                  "  pm.expect(body).to.have.property('title').that.is.a('string');",
+                  "  pm.expect(body).to.have.property('price').that.is.a('number');",
+                  "  pm.expect(body).to.have.property('category').that.is.a('string');",
+                  "  pm.expect(body).to.have.property('stock').that.is.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/products/1", "host": ["{{baseUrl}}"], "path": ["products", "1"] }
+          }
+        },
+        {
+          "name": "Update product — PUT (simulated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns the same product id', function () {",
+                  "  pm.expect(body.id).to.eql(1);",
+                  "});",
+                  "pm.test('Reflects the updated fields', function () {",
+                  "  pm.expect(body.title).to.eql('Updated QA Title');",
+                  "  pm.expect(body.price).to.eql(123);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated QA Title\",\n  \"price\": 123\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/products/1", "host": ["{{baseUrl}}"], "path": ["products", "1"] }
+          }
+        },
+        {
+          "name": "Delete product (simulated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Marks the product as deleted', function () {",
+                  "  pm.expect(body.isDeleted).to.eql(true);",
+                  "  pm.expect(body).to.have.property('deletedOn');",
+                  "});",
+                  "pm.test('deletedOn is a valid ISO timestamp', function () {",
+                  "  pm.expect(new Date(body.deletedOn).toString()).to.not.eql('Invalid Date');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/products/1", "host": ["{{baseUrl}}"], "path": ["products", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Search, Filter & Pagination",
+      "description": "Keyword search, category filtering, pagination (limit/skip), field selection, and sorting.",
+      "item": [
+        {
+          "name": "Paginate — limit & skip",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Honors the requested page size', function () {",
+                  "  pm.expect(body.products).to.be.an('array').with.lengthOf(5);",
+                  "  pm.expect(body.limit).to.eql(5);",
+                  "  pm.expect(body.skip).to.eql(10);",
+                  "});",
+                  "pm.test('Reports a total count', function () {",
+                  "  pm.expect(body.total).to.be.a('number').and.to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?limit=5&skip=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "limit", "value": "5" },
+                { "key": "skip", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Select specific fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns only selected fields (plus id)', function () {",
+                  "  pm.expect(body.products.length).to.be.above(0);",
+                  "  body.products.forEach(function (p) {",
+                  "    pm.expect(p).to.have.property('id');",
+                  "    pm.expect(p).to.have.property('title');",
+                  "    pm.expect(p).to.have.property('price');",
+                  "    pm.expect(p).to.not.have.property('description');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?limit=3&select=title,price",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "limit", "value": "3" },
+                { "key": "select", "value": "title,price" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by keyword",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns matching products', function () {",
+                  "  pm.expect(body.products.length).to.be.above(0);",
+                  "  pm.expect(body.total).to.be.above(0);",
+                  "});",
+                  "pm.test('Each result references the keyword in a searchable field', function () {",
+                  "  const term = 'phone';",
+                  "  body.products.forEach(function (p) {",
+                  "    const haystack = (p.title + ' ' + p.description + ' ' + p.category + ' ' + (p.tags || []).join(' ')).toLowerCase();",
+                  "    pm.expect(haystack).to.include(term);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/search?q=phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "search"],
+              "query": [{ "key": "q", "value": "phone" }]
+            }
+          }
+        },
+        {
+          "name": "Search — no results",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns an empty result set, not an error', function () {",
+                  "  pm.expect(body.products).to.be.an('array').that.is.empty;",
+                  "  pm.expect(body.total).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/search?q=zzqqxnomatch123",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "search"],
+              "query": [{ "key": "q", "value": "zzqqxnomatch123" }]
+            }
+          }
+        },
+        {
+          "name": "Filter by category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns products', function () {",
+                  "  pm.expect(body.products.length).to.be.above(0);",
+                  "});",
+                  "pm.test('Every product belongs to the requested category', function () {",
+                  "  body.products.forEach(function (p) {",
+                  "    pm.expect(p.category).to.eql('smartphones');",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/category/smartphones",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "category", "smartphones"]
+            }
+          }
+        },
+        {
+          "name": "List categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns a non-empty list of category slugs', function () {",
+                  "  pm.expect(body).to.be.an('array').that.is.not.empty;",
+                  "  pm.expect(body).to.include('smartphones');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/category-list",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "category-list"]
+            }
+          }
+        },
+        {
+          "name": "Sort by price (desc)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Results are sorted by price descending', function () {",
+                  "  const prices = body.products.map(function (p) { return p.price; });",
+                  "  const sorted = prices.slice().sort(function (a, b) { return b - a; });",
+                  "  pm.expect(prices).to.eql(sorted);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?sortBy=price&order=desc&limit=10&select=title,price",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "sortBy", "value": "price" },
+                { "key": "order", "value": "desc" },
+                { "key": "limit", "value": "10" },
+                { "key": "select", "value": "title,price" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Error Handling",
+      "description": "Invalid, missing, and unexpected inputs across endpoints.",
+      "item": [
+        {
+          "name": "Get product — non-existent id (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Returns a not-found message naming the id', function () {",
+                  "  pm.expect(pm.response.json().message).to.match(/not found/i);",
+                  "  pm.expect(pm.response.json().message).to.include('99999');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/products/99999", "host": ["{{baseUrl}}"], "path": ["products", "99999"] }
+          }
+        },
+        {
+          "name": "Get product — non-numeric id (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Returns an error message', function () {",
+                  "  pm.expect(pm.response.json()).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/products/not-a-number", "host": ["{{baseUrl}}"], "path": ["products", "not-a-number"] }
+          }
+        },
+        {
+          "name": "Filter — unknown category (empty set)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Unknown category yields an empty product list', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.products).to.be.an('array').that.is.empty;",
+                  "  pm.expect(body.total).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/category/this-category-does-not-exist",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "category", "this-category-does-not-exist"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "dummyjson-api-test-suite",
+  "version": "1.0.0",
+  "description": "Postman/Newman API test suite for the DummyJSON API (auth, CRUD, search/filter, error handling).",
+  "scripts": {
+    "test": "newman run collections/dummyjson.postman_collection.json -e environments/dummyjson.postman_environment.json",
+    "test:html": "newman run collections/dummyjson.postman_collection.json -e environments/dummyjson.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export newman/report.html",
+    "test:ci": "newman run collections/dummyjson.postman_collection.json -e environments/dummyjson.postman_environment.json -r cli,junit --reporter-junit-export newman/results.xml"
+  },
+  "keywords": ["postman", "newman", "api-testing", "qa", "dummyjson"],
+  "license": "MIT",
+  "devDependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}

@@ -1,0 +1,79 @@
+# Prompt Log
+
+Append-only record of every prompt sent during this project, per CLAUDE.md.
+Timestamps are UTC (ISO 8601).
+
+## [2026-06-24T22:05:00Z]
+PROMPT:
+can you access this doc ? https://docs.google.com/document/d/1Bzu9D7Sp1fLPb_6-n9nJpyUVDQtLGwGTEveUmcqN6z0/edit
+
+RESPONSE SUMMARY:
+Attempted to fetch the Google Doc. The /edit view required sign-in, so only the title
+("Technical AI Assessment — QA Engineer") was visible. Asked the user to make it public,
+paste the text, or download it.
+
+---
+
+## [2026-06-24T22:09:00Z]
+PROMPT:
+[shared a screenshot showing the doc set to "Anyone with the link — Viewer"] + sharing link
+
+RESPONSE SUMMARY:
+Retrieved the document via the Google Docs plain-text export endpoint
+(/export?format=txt). Summarized the assessment: build a Postman test suite for the
+DummyJSON API (auth, CRUD, search/filter, error handling), set up Claude Code with a
+CLAUDE.md that logs prompts to prompts.txt, push to a public repo, record a ~5 min Loom,
+and email andres.saldarriaga@metacto.com.
+
+---
+
+## [2026-06-24T22:15:00Z]
+PROMPT:
+yes before starting let me give you some background so this is QA engineer role I got this
+assignment request from recruiter so they will evaluate me based on how I work with AI so I
+want you to make me show very professional as perfect as possible you got it ?
+
+RESPONSE SUMMARY:
+Acknowledged the goal: a polished deliverable AND a transparent, professional AI workflow.
+Inspected the working directory and asked scoping questions.
+
+---
+
+## [2026-06-24T22:20:00Z]
+PROMPT:
+what is newman ? lets do it with github actions ?
+
+RESPONSE SUMMARY:
+Explained Newman (Postman's CLI runner) and how it bridges a Postman collection to CI.
+Confirmed the plan: collection + environment + Newman + GitHub Actions + CLAUDE.md +
+prompts.txt + README.
+
+---
+
+## [2026-06-24T22:25:00Z]
+PROMPT:
+[confirmed scope via question prompt: Polished + Newman/CI, verify with Newman, write Loom script]
+
+RESPONSE SUMMARY:
+Probed the live DummyJSON API to ground assertions in real behavior. Confirmed the contract
+for auth, CRUD, search/filter/pagination, and errors. Discovered two notable behaviors:
+(1) write operations are simulated and not persisted; (2) a malformed bearer token returns
+HTTP 500 instead of 401. Began scaffolding the repository (git init, structure, CLAUDE.md,
+prompts.txt).
+
+---
+
+## [2026-06-24T22:45:00Z]
+PROMPT:
+[same session — proceeded with the confirmed build]
+
+RESPONSE SUMMARY:
+Built the full deliverable: Postman collection (4 folders, 21 requests, 75 assertions),
+environment file, package.json (newman scripts), and a GitHub Actions workflow. Ran the suite
+via Newman against the live API. First run had 2 failures: GET /auth/me with no token returned
+200 instead of 401, because DummyJSON sets the JWT as an HttpOnly cookie and Newman's cookie
+jar replays it. Fixed by clearing the cookie jar in a pre-request script for the negative-auth
+tests. Re-ran: 75/75 assertions green. Verified JUnit and HTML reporters. Wrote README (design
+rationale, trade-offs, defects table) and a ~5 min Loom script. Created initial git commit.
+
+---
