@@ -239,3 +239,21 @@ Explained that docs/ held the Loom speaking notes (LOOM_SCRIPT.md from the initi
 the LOOM_CUE_CARD.md added this session) — personal recording prep that doesn't belong in a
 public portfolio repo. Removed the docs/ folder from git tracking and the working tree, fixed
 the one README reference to docs/LOOM_SCRIPT.md, committed, and pushed.
+
+---
+
+## [2026-06-28T18:30:00Z]
+PROMPT:
+why we have .claude folder and exposed github ? is it required ?
+
+RESPONSE SUMMARY:
+Explained .claude/settings.local.json is Claude Code's local permission allowlist (no secrets),
+swept into the first commit by git add -A; not required and conventionally a local-only file.
+
+## [2026-06-28T18:31:00Z]
+PROMPT:
+yes
+
+RESPONSE SUMMARY:
+Untracked .claude/settings.local.json (kept the local copy), added .claude/ to .gitignore,
+committed, and pushed. Repo now contains only the real deliverables plus prompts.txt/CLAUDE.md/README.

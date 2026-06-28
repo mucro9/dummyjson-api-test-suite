@@ -3,3 +3,4 @@ newman/
 *.log
 .DS_Store
 .env
+.claude/
