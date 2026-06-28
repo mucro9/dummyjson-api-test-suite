@@ -50,7 +50,18 @@
       "Bash(gh run *)",
       "Bash(node -e \"const c=require\\('./collections/dummyjson.postman_collection.json'\\); console.log\\('name:', c.info.name\\); console.log\\('schema:', c.info.schema\\); function count\\(items\\){let r=0;for\\(const i of items\\){if\\(i.item\\)r+=count\\(i.item\\);else r++;}return r;} console.log\\('requests:', count\\(c.item\\)\\); console.log\\('top-level folders:', c.item.map\\(i=>i.name\\).join\\(' | '\\)\\);\")",
       "Bash(node -e \"const e=require\\('./environments/dummyjson.postman_environment.json'\\); console.log\\('env name:', e.name\\); console.log\\('vars:', e.values.map\\(v=>v.key\\).join\\(', '\\)\\);\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Read(//Applications/**)",
+      "Bash(brew --version)",
+      "Bash(open -a Postman)",
+      "Bash(node *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://dummyjson.com/auth/me)",
+      "Bash(curl -s https://dummyjson.com/auth/me)",
+      "Bash(curl -s -c /tmp/dj_cookies.txt -X POST https://dummyjson.com/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"emilys\",\"password\":\"emilyspass\"}' -o /dev/null -w \"login HTTP %{http_code}\\\\n\")",
+      "Read(//tmp/**)",
+      "Bash(awk '{print $6, $7}')",
+      "Bash(curl -s -b /tmp/dj_cookies.txt -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://dummyjson.com/auth/me)",
+      "Bash(curl -s -D - -o /dev/null -X POST https://dummyjson.com/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"emilys\",\"password\":\"emilyspass\"}')"
     ]
   }
 }

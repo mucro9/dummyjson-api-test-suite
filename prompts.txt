@@ -149,3 +149,48 @@ deliverable toward the Postman app runner per the recruiter, updating the Loom s
 accordingly, and confirmed test-design quality is the primary evaluation axis.
 
 ---
+
+## [2026-06-28T15:45:00Z]
+PROMPT:
+no need to draft submission e-mail yet, before that I need your help for Postman and Loom could
+you walk me throghy every step lets start with installing postman, I should install Postman app
+itself on my mac right ?
+
+RESPONSE SUMMARY:
+Confirmed yes — install the Postman desktop app (the recruiter wants the live demo in the
+Postman app's Collection Runner). Checked the machine: Postman not yet installed, Homebrew
+available. Kicked off `brew install --cask postman` and laid out the step-by-step plan to
+install, import the collection + environment, and run the suite in the Collection Runner.
+
+---
+
+## [2026-06-28T16:40:00Z]
+PROMPT:
+[Ran the collection in the Postman app Collection Runner; 73 passed / 2 failed. Shared two
+screenshots: the 2 failures are both on "Get current user — no token (401)" — expected 401 but
+got 200. Asked Claude to analyze.]
+
+RESPONSE SUMMARY:
+Diagnosed the 2 failures as the documented HttpOnly cookie-jar trap surfacing differently in the
+Postman app than in Newman. Probed the live API with curl to confirm the tests are correct: no
+token/cookie -> 401, but a request carrying only the login cookie (no auth header) -> 200, so
+the leftover cookie silently authenticates. Newman runs 75/75 because its cookie jar is cleared
+by the pre-request script; the Postman app blocks programmatic cookie-jar access for
+non-allowlisted domains, so the clear silently no-ops and the stale cookie leaks in. Fix:
+allowlist dummyjson.com for programmatic cookie access in the app (guiding the user), then
+re-run for a clean 75/75; documenting the app-only setup note while keeping Newman/CI zero-config.
+
+---
+
+## [2026-06-28T16:55:00Z]
+PROMPT:
+[Shared three screenshots after adding dummyjson.com to the Postman Domains Allowlist and
+re-running: the Collection Runner now shows 75 passed / 0 failed / 0 errors.]
+
+RESPONSE SUMMARY:
+Confirmed the clean 75/75 run in the Postman app — the allowlist fix worked. Updated memory with
+the Newman-vs-app cookie-jar difference, and (per the user's choice) documented a concise
+"one-time app setup" note in the README so anyone importing fresh knows to allowlist
+dummyjson.com, while keeping Newman/CI zero-config. Committed and pushed; next up is Loom setup.
+
+---

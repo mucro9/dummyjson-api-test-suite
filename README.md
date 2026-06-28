@@ -30,6 +30,14 @@ as a **Postman collection** and runnable headlessly via **Newman** in **GitHub A
 3. Open the **Collection Runner** and run — all 21 requests / 75 assertions pass against the
    live API.
 
+> **One-time app setup:** the negative-auth test (`GET /auth/me` with no token) relies on a
+> pre-request script that clears the cookie jar (see the HttpOnly-cookie note below). The
+> Postman *desktop app* blocks `pm.cookies.jar()` for non-allowlisted domains, so before your
+> first run, allowlist the API: click **Cookies** (under the Send button) → **Domains
+> Allowlist** → add `dummyjson.com`. Without this, that one test reports `200` instead of `401`.
+> Newman/CI needs no such step — the cookie jar is scriptable there, so `npm test` is a clean
+> 75/75 out of the box.
+
 **Headless via Newman (bonus — shows the suite is CI-runnable):**
 
 ```bash
