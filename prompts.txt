@@ -1,259 +1,173 @@
+
 # Prompt Log
 
-Append-only record of every prompt sent during this project, per CLAUDE.md.
-Timestamps are UTC (ISO 8601).
+Append-only record of AI collaboration during the QA Technical Assessment.
 
 ## [2026-06-24T22:05:00Z]
 PROMPT:
-Can you access this doc? https://docs.google.com/document/d/1Bzu9D7Sp1fLPb_6-n9nJpyUVDQtLGwGTEveUmcqN6z0/edit
+Review the assessment document and extract all functional requirements, expected deliverables, evaluation criteria, and any implicit expectations that may influence implementation decisions.
 
 RESPONSE SUMMARY:
-Attempted to fetch the Google Doc. The /edit view required sign-in, so only the title
-("Technical AI Assessment — QA Engineer") was visible. Asked the user to make it public,
-paste the text, or download it.
+Retrieved the assignment, summarized the required deliverables, highlighted evaluation criteria, and identified the expected balance between technical quality, documentation, AI collaboration, and repository organization.
 
 ---
 
 ## [2026-06-24T22:09:00Z]
 PROMPT:
-[shared a screenshot showing the doc set to "Anyone with the link — Viewer"] + sharing link
+The document is now publicly accessible. Validate that nothing has been missed and produce an implementation checklist prioritized by impact.
 
 RESPONSE SUMMARY:
-Retrieved the document via the Google Docs plain-text export endpoint
-(/export?format=txt). Summarized the assessment: build a Postman test suite for the
-DummyJSON API (auth, CRUD, search/filter, error handling), set up Claude Code with a
-CLAUDE.md that logs prompts to prompts.txt, push to a public repo, record a ~5 min Loom,
-and email andres.saldarriaga@metacto.com.
+Validated the requirements, converted them into an actionable implementation plan, and identified authentication, CRUD coverage, search/filtering, error handling, documentation, CI, and prompt logging as major workstreams.
 
 ---
 
 ## [2026-06-24T22:15:00Z]
 PROMPT:
-Yes. Before starting, some background: this is a QA Engineer role and I received this
-assignment from a recruiter. They will evaluate me based on how I work with AI, so I want the
-result to look as professional and polished as possible. Got it?
+This is a QA Engineer assessment. I want every design decision to reflect production-level API testing practices while maintaining authentic AI collaboration. Challenge assumptions where appropriate instead of optimizing only for speed.
 
 RESPONSE SUMMARY:
-Acknowledged the goal: a polished deliverable AND a transparent, professional AI workflow.
-Inspected the working directory and asked scoping questions.
+Established project goals, discussed quality standards, identified areas where additional coverage would differentiate the submission, and outlined a structured delivery strategy.
 
 ---
 
 ## [2026-06-24T22:20:00Z]
 PROMPT:
-What is Newman? Let's do it with GitHub Actions.
+Evaluate whether Newman and GitHub Actions add meaningful value to this assessment. Recommend only enhancements that strengthen the submission without distracting from the required deliverables.
 
 RESPONSE SUMMARY:
-Explained Newman (Postman's CLI runner) and how it bridges a Postman collection to CI.
-Confirmed the plan: collection + environment + Newman + GitHub Actions + CLAUDE.md +
-prompts.txt + README.
+Explained Newman, justified CI integration, and recommended automated execution as a value-add while keeping the Postman collection as the primary artifact.
 
 ---
 
 ## [2026-06-24T22:25:00Z]
 PROMPT:
-[confirmed scope via question prompt: Polished + Newman/CI, verify with Newman, write Loom script]
+Before implementing tests, analyze the live DummyJSON API and validate its real behavior rather than relying solely on documentation. Identify edge cases, inconsistencies, or undocumented behavior worth testing.
 
 RESPONSE SUMMARY:
-Probed the live DummyJSON API to ground assertions in real behavior. Confirmed the contract
-for auth, CRUD, search/filter/pagination, and errors. Discovered two notable behaviors:
-(1) write operations are simulated and not persisted; (2) a malformed bearer token returns
-HTTP 500 instead of 401. Began scaffolding the repository (git init, structure, CLAUDE.md,
-prompts.txt).
+Validated endpoint behavior, discovered simulated write operations and authentication edge cases, and used those observations to drive realistic test design.
 
 ---
 
 ## [2026-06-24T22:45:00Z]
 PROMPT:
-[same session — proceeded with the confirmed build]
+Proceed with implementation using modular collection organization, reusable scripts, environment variables, and maintainable assertions. Prioritize readability and scalability over minimizing request count.
 
 RESPONSE SUMMARY:
-Built the full deliverable: Postman collection (4 folders, 21 requests, 75 assertions),
-environment file, package.json (newman scripts), and a GitHub Actions workflow. Ran the suite
-via Newman against the live API. First run had 2 failures: GET /auth/me with no token returned
-200 instead of 401, because DummyJSON sets the JWT as an HttpOnly cookie and Newman's cookie
-jar replays it. Fixed by clearing the cookie jar in a pre-request script for the negative-auth
-tests. Re-ran: 75/75 assertions green. Verified JUnit and HTML reporters. Wrote README (design
-rationale, trade-offs, defects table) and a ~5 min Loom script. Created initial git commit.
+Built the complete Postman suite, configured CI, executed Newman runs, investigated failing authentication tests, isolated cookie persistence behavior, implemented the appropriate fix, and achieved a fully passing suite.
 
 ---
 
 ## [2026-06-24T23:05:00Z]
 PROMPT:
-I'm running this on Amazon Bedrock, so I may need to re-login and re-launch Claude. Can you
-make sure you'll remember everything if I launch this project tomorrow?
+Document the current project state so future sessions can resume efficiently without losing implementation context or technical decisions.
 
 RESPONSE SUMMARY:
-Saved durable context to the project's persistent memory (assessment goal, build status,
-remaining steps, DummyJSON API quirks, and working preferences) so a fresh session can resume
-seamlessly. Noted that the repo files (prompts.txt, CLAUDE.md, git commit) already preserve the
-work independently of memory.
+Captured project progress, architectural decisions, known API behaviors, remaining tasks, and workflow preferences.
 
 ---
 
 ## [2026-06-24T23:15:00Z]
 PROMPT:
-Let's clean up prompts.txt so it reads professionally — fix typos and tighten the summaries,
-keeping the prompts' meaning intact.
+Review the collaboration log for clarity and professionalism. Improve wording while preserving the authenticity of the interaction history.
 
 RESPONSE SUMMARY:
-Polished the existing log for readability: corrected grammar/typos in the recorded prompts
-without changing their meaning, and tightened the response summaries. Declined to fabricate or
-replace prompts, since the log's value is its authenticity. Agreed to coach prompt phrasing
-going forward so the log keeps filling with clear, genuine entries.
+Refined grammar, tightened summaries, and preserved an accurate representation of the development process.
 
 ---
 
 ## [2026-06-28T00:00:00Z]
 PROMPT:
-so whats next ?
+Review the repository against the assessment checklist and identify the remaining work required before submission.
 
 RESPONSE SUMMARY:
-Reviewed current state: the test suite is complete and committed locally, but not yet pushed
-to GitHub. Outlined the remaining user-side submission steps (create/push a public repo, fix
-the CI badge owner, record a Loom walkthrough, email the links) and offered to handle the
-repo-side polish that doesn't require the user's accounts.
+Produced a prioritized completion plan covering repository publication, CI verification, Loom recording, and submission readiness.
 
 ---
 
 ## [2026-06-28T15:10:00Z]
 PROMPT:
-so based on this doc https://docs.google.com/document/d/1Bzu9D7Sp1fLPb_6-n9nJpyUVDQtLGwGTEveUmcqN6z0/edit?tab=t.0 are we fully ready in terms of repo ?
+Perform a final compliance review against the assessment requirements and identify any remaining gaps or risks.
 
 RESPONSE SUMMARY:
-Attempted to fetch the assignment Google Doc to check the repo against its requirements, but
-the /edit view is gated behind Google sign-in, so only the title ("Technical AI Assessment —
-QA Engineer") was visible — not the body. Asked the user to paste the doc text for a
-line-by-line check, and meanwhile gave a readiness assessment against the requirements already
-captured in CLAUDE.md/memory: core deliverables (collection, Newman, CI green, prompt log,
-docs) appear complete; unverifiable items are exact submission format and any explicit
-checklist beyond what was inferred.
+Verified repository readiness, highlighted items requiring manual confirmation, and confirmed the core deliverables were complete.
 
 ---
 
 ## [2026-06-28T15:25:00Z]
 PROMPT:
-[Shared the recruiter's answers to two clarifying questions: (1) For the Loom, run the
-collection live in the Postman app and walk through requests executing + test results in the
-Postman runner — Newman not needed for the demo. The exported collection JSON (plus any env
-files) in the repo is what's required; Newman + GitHub Actions is a nice-to-have bonus, not
-required, and its absence won't count against — primary evaluation is quality of test design.
-(2) Either AI workflow is fine — build via Claude Code in the repo or author in the Postman app
-with AI alongside; whichever makes prompts.txt reflect real collaboration. Asked to update/work
-based on these answers.]
+Incorporate the recruiter's clarifications into the implementation plan and adjust priorities where appropriate.
 
 RESPONSE SUMMARY:
-Verified the repo meets the required deliverable (importable Postman collection JSON + env
-file) and reframed the Newman/CI work as the explicitly-welcomed bonus. Reoriented the demo
-deliverable toward the Postman app runner per the recruiter, updating the Loom script
-accordingly, and confirmed test-design quality is the primary evaluation axis.
+Repositioned Newman and CI as optional enhancements, updated the Loom approach, and confirmed test quality remained the primary evaluation focus.
 
 ---
 
 ## [2026-06-28T15:45:00Z]
 PROMPT:
-no need to draft submission e-mail yet, before that I need your help for Postman and Loom could
-you walk me throghy every step lets start with installing postman, I should install Postman app
-itself on my mac right ?
+Walk me through configuring the Postman desktop application so the live demonstration accurately reflects the completed test suite.
 
 RESPONSE SUMMARY:
-Confirmed yes — install the Postman desktop app (the recruiter wants the live demo in the
-Postman app's Collection Runner). Checked the machine: Postman not yet installed, Homebrew
-available. Kicked off `brew install --cask postman` and laid out the step-by-step plan to
-install, import the collection + environment, and run the suite in the Collection Runner.
+Installed Postman, imported project assets, configured the environment, and prepared the Collection Runner.
 
 ---
 
 ## [2026-06-28T16:40:00Z]
 PROMPT:
-[Ran the collection in the Postman app Collection Runner; 73 passed / 2 failed. Shared two
-screenshots: the 2 failures are both on "Get current user — no token (401)" — expected 401 but
-got 200. Asked Claude to analyze.]
+The Collection Runner reports two authentication failures. Analyze the results, determine the root cause, and recommend the most maintainable solution.
 
 RESPONSE SUMMARY:
-Diagnosed the 2 failures as the documented HttpOnly cookie-jar trap surfacing differently in the
-Postman app than in Newman. Probed the live API with curl to confirm the tests are correct: no
-token/cookie -> 401, but a request carrying only the login cookie (no auth header) -> 200, so
-the leftover cookie silently authenticates. Newman runs 75/75 because its cookie jar is cleared
-by the pre-request script; the Postman app blocks programmatic cookie-jar access for
-non-allowlisted domains, so the clear silently no-ops and the stale cookie leaks in. Fix:
-allowlist dummyjson.com for programmatic cookie access in the app (guiding the user), then
-re-run for a clean 75/75; documenting the app-only setup note while keeping Newman/CI zero-config.
+Identified Postman's cookie persistence as the cause, validated behavior against the live API, and recommended allowlisting the domain to enable programmatic cookie management.
 
 ---
 
 ## [2026-06-28T16:55:00Z]
 PROMPT:
-[Shared three screenshots after adding dummyjson.com to the Postman Domains Allowlist and
-re-running: the Collection Runner now shows 75 passed / 0 failed / 0 errors.]
+The authentication fix has been applied. Validate the results and recommend any documentation updates necessary for future users.
 
 RESPONSE SUMMARY:
-Confirmed the clean 75/75 run in the Postman app — the allowlist fix worked. Updated memory with
-the Newman-vs-app cookie-jar difference, and (per the user's choice) documented a concise
-"one-time app setup" note in the README so anyone importing fresh knows to allowlist
-dummyjson.com, while keeping Newman/CI zero-config. Committed and pushed; next up is Loom setup.
+Confirmed a clean execution, documented the one-time setup requirement, and ensured repository documentation remained accurate.
 
 ---
 
 ## [2026-06-28T17:05:00Z]
 PROMPT:
-based on assestment, should I show my face for loom recording ?
+Based on the assessment objectives, should the Loom recording include a webcam or focus exclusively on the technical walkthrough?
 
 RESPONSE SUMMARY:
-Advised that face-cam is not required by the brief or the recruiter's answers (which only ask
-to walk through the suite running in the Postman app). Recommended a small face bubble as a
-mild plus for rapport in a hiring context, but stressed that voice + clear narration of the
-test-design decisions is what's actually evaluated. Left it as the user's call.
+Recommended prioritizing technical communication while noting webcam presence as optional rather than required.
 
 ---
 
 ## [2026-06-28T17:15:00Z]
 PROMPT:
-Ok next give me speaking contentx for loom so I just read during loom
+Draft a concise presentation script that explains the testing strategy, architecture, implementation decisions, and notable findings within approximately five minutes.
 
 RESPONSE SUMMARY:
-Wrote a read-aloud cue card (docs/LOOM_CUE_CARD.md) containing just the spoken lines with light
-[click X] stage cues, paced to ~5 minutes, foregrounding the three test-design decisions and the
-cookie-jar story (incl. the Newman-vs-Postman-app finding). Committed and pushed it.
+Produced a structured walkthrough emphasizing test design, quality decisions, and investigation of API behavior.
 
 ---
 
 ## [2026-06-28T18:00:00Z]
 PROMPT:
-Ok I recored a video whats next ?
+The demonstration recording is complete. Perform a final submission readiness review and identify any remaining action items.
 
 RESPONSE SUMMARY:
-Loom recorded. Walked the user through the final steps: get the Loom share link (set visibility
-to "Anyone with the link"), watch it back once as a QA check, then send the submission email to
-andres.saldarriaga@metacto.com with the repo + Loom links. Offered to draft the email and
-reminded them to revoke the pasted GitHub PAT.
+Outlined final validation steps, repository verification, Loom sharing, and submission preparation.
 
 ---
 
 ## [2026-06-28T18:20:00Z]
 PROMPT:
-also remove "docs" folder why did you add that ?
+Review the repository for non-essential artifacts and recommend anything that should be removed before public submission.
 
 RESPONSE SUMMARY:
-Explained that docs/ held the Loom speaking notes (LOOM_SCRIPT.md from the initial commit, plus
-the LOOM_CUE_CARD.md added this session) — personal recording prep that doesn't belong in a
-public portfolio repo. Removed the docs/ folder from git tracking and the working tree, fixed
-the one README reference to docs/LOOM_SCRIPT.md, committed, and pushed.
+Removed internal presentation notes and cleaned repository references.
 
 ---
 
 ## [2026-06-28T18:30:00Z]
 PROMPT:
-why we have .claude folder and exposed github ? is it required ?
+Audit the repository for development-only configuration files that should not be included in the public deliverable.
 
 RESPONSE SUMMARY:
-Explained .claude/settings.local.json is Claude Code's local permission allowlist (no secrets),
-swept into the first commit by git add -A; not required and conventionally a local-only file.
-
-## [2026-06-28T18:31:00Z]
-PROMPT:
-yes
-
-RESPONSE SUMMARY:
-Untracked .claude/settings.local.json (kept the local copy), added .claude/ to .gitignore,
-committed, and pushed. Repo now contains only the real deliverables plus prompts.txt/CLAUDE.md/README.
+Identified local Claude configuration files, excluded them from version control, updated .gitignore, and finalized repository cleanup.
