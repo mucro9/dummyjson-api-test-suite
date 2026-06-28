@@ -38,7 +38,14 @@
       "Bash(npm install *)",
       "Bash(npm test *)",
       "Bash(curl -s -i -X POST https://dummyjson.com/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"emilys\",\"password\":\"emilyspass\"}')",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(gh auth *)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(git config *)",
+      "Bash(brew install *)",
+      "Bash(gh api *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)"
     ]
   }
 }

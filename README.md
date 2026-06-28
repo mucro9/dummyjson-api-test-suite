@@ -3,9 +3,7 @@
 A professional API test suite for the public [DummyJSON](https://dummyjson.com) API, authored
 as a **Postman collection** and runnable headlessly via **Newman** in **GitHub Actions** CI.
 
-[![API Tests](https://github.com/OWNER/dummyjson-api-test-suite/actions/workflows/api-tests.yml/badge.svg)](https://github.com/OWNER/dummyjson-api-test-suite/actions/workflows/api-tests.yml)
-
-> Replace `OWNER` in the badge URL above with your GitHub username after pushing.
+[![API Tests](https://github.com/mucro9/dummyjson-api-test-suite/actions/workflows/api-tests.yml/badge.svg)](https://github.com/mucro9/dummyjson-api-test-suite/actions/workflows/api-tests.yml)
 
 ---
 
