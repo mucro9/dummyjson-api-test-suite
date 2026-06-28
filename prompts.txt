@@ -115,3 +115,37 @@ the CI badge owner, record a Loom walkthrough, email the links) and offered to h
 repo-side polish that doesn't require the user's accounts.
 
 ---
+
+## [2026-06-28T15:10:00Z]
+PROMPT:
+so based on this doc https://docs.google.com/document/d/1Bzu9D7Sp1fLPb_6-n9nJpyUVDQtLGwGTEveUmcqN6z0/edit?tab=t.0 are we fully ready in terms of repo ?
+
+RESPONSE SUMMARY:
+Attempted to fetch the assignment Google Doc to check the repo against its requirements, but
+the /edit view is gated behind Google sign-in, so only the title ("Technical AI Assessment —
+QA Engineer") was visible — not the body. Asked the user to paste the doc text for a
+line-by-line check, and meanwhile gave a readiness assessment against the requirements already
+captured in CLAUDE.md/memory: core deliverables (collection, Newman, CI green, prompt log,
+docs) appear complete; unverifiable items are exact submission format and any explicit
+checklist beyond what was inferred.
+
+---
+
+## [2026-06-28T15:25:00Z]
+PROMPT:
+[Shared the recruiter's answers to two clarifying questions: (1) For the Loom, run the
+collection live in the Postman app and walk through requests executing + test results in the
+Postman runner — Newman not needed for the demo. The exported collection JSON (plus any env
+files) in the repo is what's required; Newman + GitHub Actions is a nice-to-have bonus, not
+required, and its absence won't count against — primary evaluation is quality of test design.
+(2) Either AI workflow is fine — build via Claude Code in the repo or author in the Postman app
+with AI alongside; whichever makes prompts.txt reflect real collaboration. Asked to update/work
+based on these answers.]
+
+RESPONSE SUMMARY:
+Verified the repo meets the required deliverable (importable Postman collection JSON + env
+file) and reframed the Newman/CI work as the explicitly-welcomed bonus. Reoriented the demo
+deliverable toward the Postman app runner per the recruiter, updating the Loom script
+accordingly, and confirmed test-design quality is the primary evaluation axis.
+
+---

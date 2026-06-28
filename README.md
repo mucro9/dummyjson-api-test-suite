@@ -22,14 +22,21 @@ as a **Postman collection** and runnable headlessly via **Newman** in **GitHub A
 
 ## Quick start
 
+**In the Postman app (the primary deliverable):** import both files and hit **Run**.
+
+1. Import `collections/dummyjson.postman_collection.json`
+2. Import `environments/dummyjson.postman_environment.json` and select the `DummyJSON — Live`
+   environment
+3. Open the **Collection Runner** and run — all 21 requests / 75 assertions pass against the
+   live API.
+
+**Headless via Newman (bonus — shows the suite is CI-runnable):**
+
 ```bash
 npm install        # installs Newman + reporters
 npm test           # runs the suite against the live DummyJSON API
 npm run test:html  # runs and writes an HTML report to newman/report.html
 ```
-
-You can also import `collections/dummyjson.postman_collection.json` and
-`environments/dummyjson.postman_environment.json` directly into the Postman app and hit **Run**.
 
 ---
 
