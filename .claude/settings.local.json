@@ -66,7 +66,10 @@
       "Bash(open -a Loom)",
       "Bash(open /Applications/Loom.app)",
       "Bash(open -a \"TextEdit\" docs/LOOM_CUE_CARD.md)",
-      "Bash(open docs/LOOM_CUE_CARD.md)"
+      "Bash(open docs/LOOM_CUE_CARD.md)",
+      "Bash(git grep *)",
+      "Bash(cp -R docs ~/Desktop/loom-notes-backup)",
+      "Bash(git rm *)"
     ]
   }
 }
