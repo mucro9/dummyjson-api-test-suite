@@ -194,3 +194,24 @@ the Newman-vs-app cookie-jar difference, and (per the user's choice) documented 
 dummyjson.com, while keeping Newman/CI zero-config. Committed and pushed; next up is Loom setup.
 
 ---
+
+## [2026-06-28T17:05:00Z]
+PROMPT:
+based on assestment, should I show my face for loom recording ?
+
+RESPONSE SUMMARY:
+Advised that face-cam is not required by the brief or the recruiter's answers (which only ask
+to walk through the suite running in the Postman app). Recommended a small face bubble as a
+mild plus for rapport in a hiring context, but stressed that voice + clear narration of the
+test-design decisions is what's actually evaluated. Left it as the user's call.
+
+---
+
+## [2026-06-28T17:15:00Z]
+PROMPT:
+Ok next give me speaking contentx for loom so I just read during loom
+
+RESPONSE SUMMARY:
+Wrote a read-aloud cue card (docs/LOOM_CUE_CARD.md) containing just the spoken lines with light
+[click X] stage cues, paced to ~5 minutes, foregrounding the three test-design decisions and the
+cookie-jar story (incl. the Newman-vs-Postman-app finding). Committed and pushed it.
